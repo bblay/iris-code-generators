@@ -392,6 +392,27 @@ CoordAndDims(DimCoord(points=grib._cf_data.set_height,  long_name="height", unit
 ### Grib2 level ###
 ###################
 
+IF
+grib.edition == 2
+grib.typeOfFirstFixedSurface != grib.typeOfSecondFixedSurface
+DebugString("Different vertical bound types not yet handled.")
+
+
+# height
+IF
+grib.edition == 2
+grib.typeOfFirstFixedSurface == 103
+grib.typeOfSecondFixedSurface == 255
+THEN
+CoordAndDims(DimCoord(points=grib.scaledValueOfFirstFixedSurface/(10.0**grib.scaleFactorOfFirstFixedSurface), long_name="height", units="m"))
+
+IF
+grib.edition == 2
+grib.typeOfFirstFixedSurface == 103
+grib.typeOfSecondFixedSurface != 255
+THEN
+CoordAndDims(DimCoord(points=0.5*(grib.scaledValueOfFirstFixedSurface/(10.0**grib.scaleFactorOfFirstFixedSurface) + grib.scaledValueOfSecondFixedSurface/(10.0**grib.scaleFactorOfSecondFixedSurface)), long_name="height", units="m", bounds=[grib.scaledValueOfFirstFixedSurface/(10.0**grib.scaleFactorOfFirstFixedSurface) , grib.scaledValueOfSecondFixedSurface/(10.0**grib.scaleFactorOfSecondFixedSurface)]))
+
 
 # pressure
 IF
